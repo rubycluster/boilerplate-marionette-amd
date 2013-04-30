@@ -1,33 +1,34 @@
 /*global require*/
+
 'use strict';
 
 require.config({
-    shim: {
-        underscore: {
-            exports: '_'
-        },
-        backbone: {
-            deps: [
-                'underscore',
-                'jquery'
-            ],
-            exports: 'Backbone'
-        },
-        bootstrap: {
-            deps: ['jquery'],
-            exports: 'jquery'
-        }
+  shim: {
+    underscore: {
+      exports: '_'
     },
-    paths: {
-        jquery: '../components/jquery/jquery',
-        backbone: '../components/backbone-amd/backbone',
-        underscore: '../components/underscore-amd/underscore',
-        bootstrap: 'vendor/bootstrap'
+    backbone: {
+      deps: [
+        'underscore',
+        'jquery'
+      ],
+      exports: 'Backbone'
+    },
+    bootstrap: {
+      deps: ['jquery'],
+      exports: 'jquery'
     }
+  },
+  paths: {
+    jquery: '../components/jquery/jquery',
+    backbone: '../components/backbone-amd/backbone',
+    underscore: '../components/underscore-amd/underscore',
+    bootstrap: 'vendor/bootstrap'
+  }
 });
 
 require([
-    'backbone'
+  'backbone'
 ], function (Backbone) {
-    Backbone.history.start();
+  Backbone.history.start();
 });
