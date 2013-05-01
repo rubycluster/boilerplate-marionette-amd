@@ -1,0 +1,14 @@
+.hero-unit
+  %h1 'Allo, 'Allo!
+  %p You now have
+  %ul
+    %li HTML5 Boilerplate
+    %li jQuery
+    %li RequireJS
+    %li Underscore.js
+    %li Backbone.js
+    %li Marionette.js
+    %li HAML coffee
+    %li Twitter Bootstrap
+  %p installed.
+  %h3 Enjoy coding! - Yeoman

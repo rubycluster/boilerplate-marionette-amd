@@ -4,12 +4,6 @@ lrSnippet = require("grunt-contrib-livereload/lib/utils").livereloadSnippet
 mountFolder = (connect, dir) ->
   connect.static require("path").resolve(dir)
 
-# # Globbing
-# for performance reasons we're only matching one level down:
-# 'test/spec/{,*/}*.js'
-# use this if you want to match all subfolders:
-# 'test/spec/**/*.js'
-
 module.exports = (grunt) ->
 
   # load all grunt tasks
@@ -19,28 +13,33 @@ module.exports = (grunt) ->
   yeomanConfig =
     app: "app"
     dist: "dist"
+    tmp: ".tmp"
 
   grunt.initConfig
     yeoman: yeomanConfig
     watch:
       coffee:
-        files: ["<%= yeoman.app %>/scripts/{,*/}*.coffee"]
-        tasks: ["coffee:dist"]
+        files: ["<%= yeoman.app %>/scripts/**/*.coffee"]
+        tasks: ["coffee"]
 
       coffeeTest:
-        files: ["test/spec/{,*/}*.coffee"]
+        files: ["test/spec/**/*.coffee"]
         tasks: ["coffee:test"]
 
       compass:
         files: ["<%= yeoman.app %>/styles/{,*/}*.{scss,sass}"]
         tasks: ["compass"]
 
+      haml:
+        files: ["<%= yeoman.app %>/scripts/templates/**/*.hamlc"]
+        tasks: ["haml"]
+
       livereload:
         files: [
           "<%= yeoman.app %>/*.html"
-          "{.tmp,<%= yeoman.app %>}/styles/{,*/}*.css"
-          "{.tmp,<%= yeoman.app %>}/scripts/{,*/}*.js"
-          "<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp}"
+          "{<%= yeoman.tmp %>,<%= yeoman.app %>}/styles/{,*/}*.css"
+          "{<%= yeoman.tmp %>,<%= yeoman.app %>}/scripts/**/*.js"
+          "<%= yeoman.app %>/images/**/*.{png,jpg,jpeg,gif,webp}"
         ]
         tasks: ["livereload"]
 
@@ -57,25 +56,37 @@ module.exports = (grunt) ->
       livereload:
         options:
           middleware: (connect) ->
-            [lrSnippet, mountFolder(connect, ".tmp"), mountFolder(connect, "app")]
+            [
+              lrSnippet
+              mountFolder(connect, ".tmp")
+              mountFolder(connect, "app")
+            ]
 
       test:
         options:
           middleware: (connect) ->
-            [mountFolder(connect, ".tmp"), mountFolder(connect, "test")]
+            [
+              mountFolder(connect, ".tmp")
+              mountFolder(connect, "test")
+            ]
 
       dist:
         options:
           middleware: (connect) ->
-            [mountFolder(connect, "dist")]
+            [
+              mountFolder(connect, "dist")
+            ]
 
     open:
       server:
         path: "http://localhost:<%= connect.options.port %>"
 
     clean:
-      dist: [".tmp", "<%= yeoman.dist %>/*"]
-      server: ".tmp"
+      dist: [
+        "<%= yeoman.tmp %>"
+        "<%= yeoman.dist %>/*"
+      ]
+      server: "<%= yeoman.tmp %>"
 
     jshint:
       options:
@@ -83,7 +94,7 @@ module.exports = (grunt) ->
 
       all: [
         "Gruntfile.js"
-        "<%= yeoman.app %>/scripts/{,*/}*.js"
+        "<%= yeoman.app %>/scripts/**/*.js"
         "!<%= yeoman.app %>/scripts/vendor/*"
         "test/spec/{,*/}*.js"
       ]
@@ -92,32 +103,50 @@ module.exports = (grunt) ->
       all:
         options:
           run: true
-          urls: ["http://localhost:<%= connect.options.port %>/index.html"]
+          urls: [
+            "http://localhost:<%= connect.options.port %>/index.html"
+          ]
 
     coffee:
       dist:
         files: [
-          # rather than compiling multiple files here you should
-          # require them into your main .coffee file
           expand: true
           cwd: "<%= yeoman.app %>/scripts"
-          src: "*.coffee"
-          dest: ".tmp/scripts"
+          src: "**/**/*.coffee"
+          dest: "<%= yeoman.tmp %>/scripts"
           ext: ".js"
         ]
 
       test:
         files: [
           expand: true
-          cwd: ".tmp/spec"
-          src: "*.coffee"
+          cwd: "<%= yeoman.tmp %>/spec"
+          src: "**/**/*.coffee"
           dest: "test/spec"
+        ]
+
+    haml:
+      dist:
+        options:
+          language: "coffee"
+          target: "js"
+          placement: "amd"
+          dependencies:
+            h: "helpers/templates_helpers"
+            t: "templates"
+
+        files: [
+          expand: true
+          cwd: "<%= yeoman.app %>/scripts/templates"
+          src: "**/*.hamlc"
+          dest: ".tmp/scripts/templates"
+          ext: ".js"
         ]
 
     compass:
       options:
         sassDir: "<%= yeoman.app %>/styles"
-        cssDir: ".tmp/styles"
+        cssDir: "<%= yeoman.tmp %>/styles"
         imagesDir: "<%= yeoman.app %>/images"
         javascriptsDir: "<%= yeoman.app %>/scripts"
         fontsDir: "<%= yeoman.app %>/styles/fonts"
@@ -134,18 +163,12 @@ module.exports = (grunt) ->
         # Options: https://github.com/jrburke/r.js/blob/master/build/example.build.js
         options:
           # `name` and `out` is set by grunt-usemin
-          baseUrl: "app/scripts"
+          baseUrl: "<%= yeoman.tmp %>/scripts"
           optimize: "none"
-          # TODO: Figure out how to make sourcemaps work with grunt-usemin
-          # https://github.com/yeoman/grunt-usemin/issues/30
-          #generateSourceMaps: true,
-          # required to support SourceMaps
-          # http://requirejs.org/docs/errors.html#sourcemapcomments
           preserveLicenseComments: false
           useStrict: true
           wrap: true
 
-    #uglify2: {} // https://github.com/mishoo/UglifyJS2
     useminPrepare:
       html: "<%= yeoman.app %>/index.html"
       options:
@@ -170,22 +193,13 @@ module.exports = (grunt) ->
       dist:
         files:
           "<%= yeoman.dist %>/styles/main.css": [
-            ".tmp/styles/{,*/}*.css"
+            "<%= yeoman.tmp %>/styles/{,*/}*.css"
             "<%= yeoman.app %>/styles/{,*/}*.css"
           ]
 
     htmlmin:
       dist:
         options: {}
-        # removeCommentsFromCDATA: true,
-        # // https://github.com/yeoman/grunt-usemin/issues/44
-        # //collapseWhitespace: true,
-        # collapseBooleanAttributes: true,
-        # removeAttributeQuotes: true,
-        # removeRedundantAttributes: true,
-        # useShortDoctype: true,
-        # removeEmptyAttributes: true,
-        # removeOptionalTags: true
         files: [
           expand: true
           cwd: "<%= yeoman.app %>"
@@ -194,6 +208,7 @@ module.exports = (grunt) ->
         ]
 
     copy:
+
       dist:
         files: [
           expand: true
@@ -203,9 +218,25 @@ module.exports = (grunt) ->
           src: ["*.{ico,txt}", ".htaccess", "images/{,*/}*.{webp,gif}"]
         ]
 
+      js:
+        files: [
+          expand: true
+          dot: true
+          cwd: "<%= yeoman.app %>/scripts"
+          dest: "<%= yeoman.tmp %>/scripts"
+          src: ["{,*/}*.js"]
+        ]
+
+    symlink:
+      js:
+        dest: "<%= yeoman.tmp %>/components"
+        relativeSrc: "../app/components"
+        options:
+          type: "dir"
+
     bower:
       all:
-        rjsConfig: "<%= yeoman.app %>/scripts/main.js"
+        rjsConfig: "<%= yeoman.tmp %>/scripts/main.js"
 
     jst:
       options:
@@ -213,7 +244,7 @@ module.exports = (grunt) ->
 
       compile:
         files:
-          ".tmp/scripts/templates.js": ["<%= yeoman.app %>/scripts/templates/*.ejs"]
+          "<%= yeoman.tmp %>/scripts/templates.js": ["<%= yeoman.app %>/scripts/templates/*.ejs"]
 
   grunt.renameTask "regarde", "watch"
 
@@ -225,6 +256,7 @@ module.exports = (grunt) ->
     ])  if target is "dist"
     grunt.task.run [
       "clean:server"
+      "haml"
       "coffee:dist"
       "jst"
       "compass:server"
@@ -245,7 +277,10 @@ module.exports = (grunt) ->
 
   grunt.registerTask "build", [
     "clean:dist"
+    "haml"
     "coffee"
+    "copy:js"
+    "symlink:js"
     "jst"
     "compass:dist"
     "useminPrepare"
