@@ -8,8 +8,8 @@ require.config
     app: "app"
     app_deps: "config/app_deps"
     jquery: "../components/jquery/jquery"
-    backbone: "../components/backbone-amd/backbone"
-    underscore: "../components/underscore-amd/underscore"
+    backbone: "../components/backbone/backbone"
+    underscore: "../components/underscore/underscore"
     bootstrap: "vendor/bootstrap"
     backbone_marionette: "../components/backbone.marionette/lib/backbone.marionette"
 

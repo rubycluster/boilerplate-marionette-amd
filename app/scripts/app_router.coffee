@@ -6,4 +6,4 @@ define [
 
     appRoutes:
       '': 'root'
-      '*defaults': 'missing'
+      # '*defaults': 'missing'

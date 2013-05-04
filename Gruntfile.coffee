@@ -43,10 +43,6 @@ module.exports = (grunt) ->
         ]
         tasks: ["livereload"]
 
-      jst:
-        files: ["<%= yeoman.app %>/scripts/templates/*.ejs"]
-        tasks: ["jst"]
-
     connect:
       options:
         port: 9000
@@ -112,7 +108,7 @@ module.exports = (grunt) ->
         files: [
           expand: true
           cwd: "<%= yeoman.app %>/scripts"
-          src: "**/**/*.coffee"
+          src: "**/*.coffee"
           dest: "<%= yeoman.tmp %>/scripts"
           ext: ".js"
         ]
@@ -121,7 +117,7 @@ module.exports = (grunt) ->
         files: [
           expand: true
           cwd: "<%= yeoman.tmp %>/spec"
-          src: "**/**/*.coffee"
+          src: "**/*.coffee"
           dest: "test/spec"
         ]
 
@@ -139,7 +135,7 @@ module.exports = (grunt) ->
           expand: true
           cwd: "<%= yeoman.app %>/scripts/templates"
           src: "**/*.hamlc"
-          dest: ".tmp/scripts/templates"
+          dest: "<%= yeoman.tmp %>/scripts/templates"
           ext: ".js"
         ]
 
@@ -238,14 +234,6 @@ module.exports = (grunt) ->
       all:
         rjsConfig: "<%= yeoman.tmp %>/scripts/main.js"
 
-    jst:
-      options:
-        amd: true
-
-      compile:
-        files:
-          "<%= yeoman.tmp %>/scripts/templates.js": ["<%= yeoman.app %>/scripts/templates/*.ejs"]
-
   grunt.renameTask "regarde", "watch"
 
   grunt.registerTask "server", (target) ->
@@ -256,9 +244,8 @@ module.exports = (grunt) ->
     ])  if target is "dist"
     grunt.task.run [
       "clean:server"
-      "haml"
       "coffee:dist"
-      "jst"
+      "haml"
       "compass:server"
       "livereload-start"
       "connect:livereload"
@@ -269,7 +256,6 @@ module.exports = (grunt) ->
   grunt.registerTask "test", [
     "clean:server"
     "coffee"
-    "jst"
     "compass"
     "connect:test"
     "mocha"
@@ -277,11 +263,10 @@ module.exports = (grunt) ->
 
   grunt.registerTask "build", [
     "clean:dist"
-    "haml"
     "coffee"
+    "haml"
     "copy:js"
     "symlink:js"
-    "jst"
     "compass:dist"
     "useminPrepare"
     "requirejs"

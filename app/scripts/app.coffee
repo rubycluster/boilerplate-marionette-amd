@@ -27,11 +27,9 @@ define [
   app.on "initialize:before", (options) =>
 
   app.on "initialize:after", (options) =>
-    setTimeout ->
-      Backbone.history.start
-        pushState: true
-        root: '/'
-    , 2000
+    Backbone.history.start
+      pushState: false
+      root: '/'
 
   app.addInitializer ->
     app.appController = new AppController()

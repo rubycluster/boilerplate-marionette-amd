@@ -1,12 +1,13 @@
 define [
   'backbone_marionette'
-], (Marionette) ->
+  'views/home_page'
+], (Marionette, HomePageView) ->
 
   class AppController extends Marionette.Controller
 
     root: ->
       console.log '[navigate] root'
-      $('.container').html app.templates.home()
+      new HomePageView()
 
     missing: ->
       console.log '[navigate] missing'
